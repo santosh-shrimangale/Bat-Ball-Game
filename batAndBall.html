@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="batAndBall.css" />
+  </head>
+  <body>
+    <div class="heading">
+      <span class="ballBat">Ball</span> & <span class="ballBat"> Bat</span> Game
+    </div>
+    <canvas id="canvas" class="canvas" width="400" height="400"></canvas>
+    <script>
+
+      // Get the canvas element and its context
+      let canvas = document.getElementById("canvas");
+      let ctx = canvas.getContext("2d");
+
+      // Set the initial positions of the ball and bat
+      let ballX = canvas.width / 2;
+      let ballY = canvas.height - 30;
+      let ballRadius = 10;
+      let ballDx = 2;
+      let ballDy = -2;
+      let batHeight = 10;
+      let batWidth = 75;
+      let batX = (canvas.width - batWidth) / 2;
+
+      // Keep track of the player's score
+      let score = 0;
+
+      // Add an event listener to track the mouse movement
+      canvas.addEventListener("mousemove", mouseMoveHandler, false);
+
+      // Move the bat in response to mouse movement
+      function mouseMoveHandler(event) {
+        let relativeX = event.clientX - canvas.offsetLeft;
+        if (relativeX > 0 && relativeX < canvas.width) {
+          batX = relativeX - batWidth / 2;
+        }
+      }
+
+      // Draw the ball on the canvas
+      const drawBall = () => {
+        ctx.beginPath();
+        ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+        ctx.fillStyle = "#0095DD";
+        ctx.fill();
+        ctx.closePath();
+      };
+
+      // Draw the bat on the canvas
+      const drawBat = () => {
+        ctx.beginPath();
+        ctx.rect(batX, canvas.height - batHeight, batWidth, batHeight);
+        ctx.fillStyle = "red";
+        ctx.fill();
+        ctx.closePath();
+      };
+
+      // Draw the player's score on the canvas
+      const drawScore = () => {
+        ctx.font = "16px Arial";
+        ctx.fillStyle = "#0095DD";
+        ctx.fillText("Score: " + score, 8, 20);
+      };
+
+      // Detect collisions with the walls and bat
+      const detectCollisions = () => {
+        if (
+          ballX + ballDx > canvas.width - ballRadius ||
+          ballX + ballDx < ballRadius
+        ) {
+          ballDx = -ballDx;
+        }
+        if (ballY + ballDy < ballRadius) {
+          ballDy = -ballDy;
+        } else if (ballY + ballDy > canvas.height - ballRadius) {
+          if (ballX > batX && ballX < batX + batWidth) {
+            ballDy = -ballDy;
+            score++;
+          } else {
+            alert("Game Over. Your score is " + score);
+            document.location.reload();
+            clearInterval(interval);
+          }
+        }
+      };
+
+      // Draw everything on the canvas
+      const draw = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawBall();
+        drawBat();
+        drawScore();
+        detectCollisions();
+        ballX += ballDx;
+        ballY += ballDy;
+      };
+
+      // Update the canvas every 10 milliseconds
+      let interval = setInterval(function () {
+        requestAnimationFrame(draw);
+      }, 1000 / 60); 
+    </script>
+  </body>
+</html>
